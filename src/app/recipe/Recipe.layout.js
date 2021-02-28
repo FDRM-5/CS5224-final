@@ -21,8 +21,8 @@ const RecipeLayout = () => {
 	console.log("recipes", recipes);
 
 	return (
-		<div css={{ paddingTop: 100 }}>
-			<div css={{ width: 400 }}>
+		<div css={{ paddingTop: 50 }}>
+			<div css={{ width: 600 }}>
 				<Input
 					action={{
 						color: "teal",
@@ -46,7 +46,7 @@ const RecipeLayout = () => {
 			</div>
 			<div
 				css={{
-					marginTop: 100,
+					marginTop: 50,
 					padding: 20,
 					borderRadius: 3,
 					border: "1px solid grey",
@@ -55,7 +55,7 @@ const RecipeLayout = () => {
 					<Label color="green">{i}</Label>
 				))}
 			</div>
-			<div css={{ marginTop: 100 }}>
+			<div css={{ marginTop: 50 }}>
 				<Button
 					content="Find me ingredients"
 					color="teal"
@@ -63,7 +63,7 @@ const RecipeLayout = () => {
 				/>
 			</div>
 			{recipes?.length > 0 && (
-				<div css={{ marginTop: 100 }}>
+				<div css={{ marginTop: 50 }}>
 					<Header content="Your recipes" size="small" />
 					<div css={{ display: "flex", flexWrap: "wrap" }}>
 						{recipes?.slice(0, 6)?.map((recipe) => (
