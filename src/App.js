@@ -9,9 +9,7 @@ import { Global, css } from "@emotion/react";
 // Local components
 import ErrorBoundary from "./app/errorboundary/ErrorBoundary";
 import Navigate from "./app/navigate/Navigate";
-import HomepageLayout from "./app/homepage/Homepage.layout";
-import NoteLayout from "./app/note/Note.layout";
-import NoteBook from "./app/notebook/Notebook";
+import RecipeLayout from "./app/recipe/Recipe.layout";
 import { Loader } from "./common";
 
 const queryClient = new QueryClient();
@@ -21,21 +19,11 @@ const App = () => {
 		<div css={{ display: "flex", justifyContent: "center" }} className="App">
 			<div css={{ width: 1200 }}>
 				<ErrorBoundary>
-					<Global
-						styles={css`
-							body {
-								background: #000;
-								color: #fff
-							}
-						`}
-					/>
 					<QueryClientProvider client={queryClient}>
 						<Router>
 							<Navigate />
 							<Switch>
-								<Route exact path="/" component={HomepageLayout} />
-								<Route exact path="/notes" component={NoteLayout} />
-								<Route exact path="/study" component={NoteBook} />
+								<Route exact path="/" component={RecipeLayout} />
 							</Switch>
 						</Router>
 					</QueryClientProvider>
