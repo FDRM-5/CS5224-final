@@ -1,5 +1,12 @@
-# fluffy-robot
+# CS5224 Group Assignment
 
-Who am I? And other kick-ass utilities.
+### Group members: Gaurav, Dheeraj, Anshul, Akanksha
 
-## Still under development.
+#### Last updated 28 Feb 2021
+
+## Get started
+
+- Clone repository
+- Run 'npm install'
+- Run 'npm start'
+- Server will be live on port 5000, go to http://localhost:5000
