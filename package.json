@@ -1,10 +1,8 @@
 {
-	"name": "fluffy-robot",
+	"name": "cs5224_group_project",
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
-		"@ckeditor/ckeditor5-build-inline": "^24.0.0",
-		"@ckeditor/ckeditor5-react": "^3.0.0",
 		"@emotion/babel-preset-css-prop": "^10.0.27",
 		"@emotion/core": "^10.0.27",
 		"@emotion/react": "^11.1.4",
