@@ -18,8 +18,6 @@ const RecipeLayout = () => {
 			.catch((err) => console.log("An error occured:", err));
 	};
 
-	console.log("recipes", recipes);
-
 	return (
 		<div css={{ paddingTop: 50 }}>
 			<div css={{ width: 600 }}>
@@ -38,7 +36,6 @@ const RecipeLayout = () => {
 					placeholder="Ingredients"
 					value={ingredientInput}
 					onChange={(e, data) => {
-						console.log(data);
 						setIngredientInput(data.value);
 					}}
 					label="Ingredients"
@@ -57,7 +54,7 @@ const RecipeLayout = () => {
 			</div>
 			<div css={{ marginTop: 50 }}>
 				<Button
-					content="Find me ingredients"
+					content="Find me recipes"
 					color="teal"
 					onClick={getRecipe}
 				/>
