@@ -11,6 +11,7 @@ import ErrorBoundary from "./app/errorboundary/ErrorBoundary";
 import Navigate from "./app/navigate/Navigate";
 import RecipeLayout from "./app/recipe/Recipe.layout";
 import { Loader } from "./common";
+import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
 
 const queryClient = new QueryClient();
 
@@ -27,10 +28,11 @@ const App = () => {
               </Switch>
             </Router>
           </QueryClientProvider>
+          <AmplifySignOut />
         </ErrorBoundary>
       </div>
     </div>
   );
 };
 
-export default App;
+export default withAuthenticator(App);
