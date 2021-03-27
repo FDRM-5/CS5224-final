@@ -27,18 +27,18 @@ const RecipeLayout = () => {
   const getRecipe = () => {
     if (!ingredients?.length) return;
     fetch(
-      `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredients.join(
-        ","
-      )}${diet ? `&diet=${diet}` : ""}${cuisine ? `&cuisine=${cuisine}` : ""}${
-        minCalories ? `&minCalories=${minCalories}` : ""
-      }${maxCalories ? `&maxCalories=${maxCalories}` : ""}
-	  &addRecipeNutrition=true 
-	  &number=6&apiKey=42e08cd7ff414511b22437f94fcd728c`
+      // prettier-ignore
+      `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredients.join(",")}${diet ? `&diet=${diet}` : ""}${cuisine ? `&cuisine=${cuisine}` : ""}${minCalories ? `&minCalories=${minCalories}` : ""}${maxCalories ? `&maxCalories=${maxCalories}` : ""}&addRecipeNutrition=true&number=6&apiKey=42e08cd7ff414511b22437f94fcd728c`
     )
       .then((res) => res.json())
       .then((res) => {
-        console.log("es", res);
-        setRecipes(res.results);
+        const processedResult = res?.results?.map((result) => {
+          const caloriesObj = result?.nutrition?.nutrients?.filter(
+            (nutrient) => nutrient.name === "Calories"
+          );
+          return Object.assign({}, result, { calories: caloriesObj?.[0] });
+        });
+        setRecipes(processedResult);
       })
       .catch((err) => console.log("An error occured:", err));
   };
@@ -54,15 +54,10 @@ const RecipeLayout = () => {
     )
       .then((res) => res.json())
       .then((res) => {
-        console.log("es", res);
         setSelectedRecipe(res);
       })
       .catch((err) => console.log("An error occured:", err));
   };
-
-  useEffect(() => {
-    getRecipe();
-  }, []);
 
   return (
     <div css={{ padding: "70px 50px 50px 50px" }}>
@@ -136,9 +131,9 @@ const RecipeLayout = () => {
         />
       </div>
       <div css={{ marginTop: 50, display: "flex" }}>
-        <div>
+        <div css={{ width: "20%", paddingRight: 15 }}>
           <Dropdown
-            placeholder="Select diet"
+            placeholder="Select diet..."
             fluid
             search
             selection
@@ -148,17 +143,82 @@ const RecipeLayout = () => {
               { key: "Vegetarian", value: "Vegetarian", text: "Vegetarian" },
               { key: "Vegan", value: "Vegan", text: "Vegan" },
             ]}
-            // onChange={(e, data) => (console.log())}
+            onChange={(e, { value }) => {
+              setDiet(value);
+            }}
+            value={diet}
+          />
+        </div>
+        <div css={{ width: "20%", paddingRight: 15 }}>
+          <Dropdown
+            placeholder="Select diet..."
+            fluid
+            search
+            selection
+            options={[
+              { key: "American", value: "American", text: "American" },
+              { key: "British", value: "British", text: "British" },
+              { key: "Chinese", value: "Chinese", text: "Chinese" },
+              { key: "French", value: "French", text: "French" },
+              { key: "Indian", value: "Indian", text: "Indian" },
+              { key: "Italian", value: "Italian", text: "Italian" },
+              { key: "Mexican", value: "Mexican", text: "Mexican" },
+              {
+                key: "Middle Eastern",
+                value: "Middle Eastern",
+                text: "Middle Eastern",
+              },
+              { key: "Nordic", value: "Nordic", text: "Nordic" },
+              { key: "Spanish", value: "Spanish", text: "Spanish" },
+              { key: "Thai", value: "Thai", text: "Thai" },
+              { key: "Vietnamese", value: "Vietnamese", text: "Vietnamese" },
+            ]}
+            onChange={(e, { value }) => {
+              setCuisine(value);
+            }}
+            value={cuisine}
+          />
+        </div>
+        <div css={{ paddingRight: 15 }}>
+          <Input
+            label={{ basic: true, content: "Kcal" }}
+            labelPosition="right"
+            placeholder="Min calories..."
+            value={minCalories}
+            onChange={(e, { value }) => {
+              const int = /^[0-9\b]+$/;
+              if (int.test(value) || minCalories.length === 1) {
+                setMinCalories(value);
+              }
+            }}
+          />
+        </div>
+        <div css={{ paddingRight: 15 }}>
+          <Input
+            label={{ basic: true, content: "Kcal" }}
+            labelPosition="right"
+            placeholder="Max calories..."
+            value={maxCalories}
+            onChange={(e, { value }) => {
+              const int = /^[0-9\b]+$/;
+              if (int.test(value) || minCalories.length === 1) {
+                setMaxCalories(value);
+              }
+            }}
           />
         </div>
       </div>
       <div css={{ marginTop: 50 }}>
         {ingredients?.length > 0 ? (
-          ingredients.map((i) => (
-            <Label color="green" size="large">
-              {i} <Icon name="close" onClick={() => removeIngredient(i)} />
-            </Label>
-          ))
+          <Card>
+            <div css={{ padding: 20 }}>
+              {ingredients.map((i) => (
+                <Label color="green" size="large">
+                  {i} <Icon name="close" onClick={() => removeIngredient(i)} />
+                </Label>
+              ))}
+            </div>
+          </Card>
         ) : (
           <Card>
             <div css={{ padding: 20 }}>
@@ -200,6 +260,30 @@ const RecipeLayout = () => {
                       {recipe?.likes}
                     </Label>
                   </Card.Content>
+                  <List>
+                    <List.Item>
+                      <Icon name="hand point right" />
+                      {`Protein: ${recipe?.nutrition?.caloricBreakdown?.percentProtein}%`}
+                    </List.Item>
+                    <List.Item>
+                      <Icon name="hand point right" />
+                      {`Fat: ${recipe?.nutrition?.caloricBreakdown?.percentFat}%`}
+                    </List.Item>
+                    <List.Item>
+                      <Icon name="hand point right" />
+                      {`Carb: ${recipe?.nutrition?.caloricBreakdown?.percentCarbs}%`}
+                    </List.Item>
+                    <List.Item>
+                      <Icon name="gripfire" color="orange" />
+                      {`Calories: ${recipe?.calories?.amount} ${recipe?.calories?.unit}`}
+                    </List.Item>
+                    {recipe?.vegetarian && (
+                      <List.Item>
+                        <Icon name="leaf" color="green" />
+                        Vegetarian
+                      </List.Item>
+                    )}
+                  </List>
                 </Card>
               </div>
             ))}
