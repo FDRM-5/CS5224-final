@@ -15,22 +15,22 @@ import { Loader } from "./common";
 const queryClient = new QueryClient();
 
 const App = () => {
-	return (
-		<div css={{ display: "flex", justifyContent: "center" }} className="App">
-			<div css={{ width: 1200 }}>
-				<ErrorBoundary>
-					<QueryClientProvider client={queryClient}>
-						<Router>
-							<Navigate />
-							<Switch>
-								<Route exact path="/" component={RecipeLayout} />
-							</Switch>
-						</Router>
-					</QueryClientProvider>
-				</ErrorBoundary>
-			</div>
-		</div>
-	);
+  return (
+    <div css={{ display: "flex", justifyContent: "center" }} className="App">
+      <div css={{ width: 1200 }}>
+        <ErrorBoundary>
+          <QueryClientProvider client={queryClient}>
+            <Router>
+              <Navigate />
+              <Switch>
+                <Route exact path="/" component={RecipeLayout} />
+              </Switch>
+            </Router>
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </div>
+    </div>
+  );
 };
 
 export default App;
