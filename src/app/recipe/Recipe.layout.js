@@ -151,7 +151,7 @@ const RecipeLayout = () => {
         </div>
         <div css={{ width: "20%", paddingRight: 15 }}>
           <Dropdown
-            placeholder="Select diet..."
+            placeholder="Select cuisine..."
             fluid
             search
             selection
