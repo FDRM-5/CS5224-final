@@ -187,7 +187,7 @@ const RecipeLayout = () => {
             value={minCalories}
             onChange={(e, { value }) => {
               const int = /^[0-9\b]+$/;
-              if (int.test(value) || minCalories.length === 1) {
+              if (int.test(value) || value === "") {
                 setMinCalories(value);
               }
             }}
@@ -201,7 +201,7 @@ const RecipeLayout = () => {
             value={maxCalories}
             onChange={(e, { value }) => {
               const int = /^[0-9\b]+$/;
-              if (int.test(value) || minCalories.length === 1) {
+              if (int.test(value) || value === "") {
                 setMaxCalories(value);
               }
             }}
