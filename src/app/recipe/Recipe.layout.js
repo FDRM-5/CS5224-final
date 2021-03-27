@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   Card,
@@ -9,6 +9,7 @@ import {
   Modal,
   Icon,
   List,
+  Dropdown,
 } from "semantic-ui-react";
 
 const RecipeLayout = () => {
@@ -18,14 +19,26 @@ const RecipeLayout = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState({});
 
+  const [diet, setDiet] = useState("");
+  const [cuisine, setCuisine] = useState("");
+  const [minCalories, setMinCalories] = useState(null);
+  const [maxCalories, setMaxCalories] = useState(null);
+
   const getRecipe = () => {
+    if (!ingredients?.length) return;
     fetch(
-      `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&apiKey=42e08cd7ff414511b22437f94fcd728c`
+      `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${ingredients.join(
+        ","
+      )}${diet ? `&diet=${diet}` : ""}${cuisine ? `&cuisine=${cuisine}` : ""}${
+        minCalories ? `&minCalories=${minCalories}` : ""
+      }${maxCalories ? `&maxCalories=${maxCalories}` : ""}
+	  &addRecipeNutrition=true 
+	  &number=6&apiKey=42e08cd7ff414511b22437f94fcd728c`
     )
       .then((res) => res.json())
       .then((res) => {
         console.log("es", res);
-        setRecipes(res);
+        setRecipes(res.results);
       })
       .catch((err) => console.log("An error occured:", err));
   };
@@ -46,6 +59,10 @@ const RecipeLayout = () => {
       })
       .catch((err) => console.log("An error occured:", err));
   };
+
+  useEffect(() => {
+    getRecipe();
+  }, []);
 
   return (
     <div css={{ padding: "70px 50px 50px 50px" }}>
@@ -118,6 +135,23 @@ const RecipeLayout = () => {
           label="Ingredients"
         />
       </div>
+      <div css={{ marginTop: 50, display: "flex" }}>
+        <div>
+          <Dropdown
+            placeholder="Select diet"
+            fluid
+            search
+            selection
+            options={[
+              { key: "Gluten Free", value: "Gluten Free", text: "Gluten Free" },
+              { key: "Ketogenic", value: "Ketogenic", text: "Ketogenic" },
+              { key: "Vegetarian", value: "Vegetarian", text: "Vegetarian" },
+              { key: "Vegan", value: "Vegan", text: "Vegan" },
+            ]}
+            // onChange={(e, data) => (console.log())}
+          />
+        </div>
+      </div>
       <div css={{ marginTop: 50 }}>
         {ingredients?.length > 0 ? (
           ingredients.map((i) => (
@@ -145,7 +179,10 @@ const RecipeLayout = () => {
       </div>
       {recipes?.length > 0 && (
         <div css={{ marginTop: 50 }}>
-          <Header content="Your recipes" size="small" />
+          <Header
+            content={ingredients?.length ? "Your recipes" : "Featured recipes"}
+            size="small"
+          />
           <div css={{ display: "flex", flexWrap: "wrap" }}>
             {recipes?.slice(0, 6)?.map((recipe) => (
               <div
