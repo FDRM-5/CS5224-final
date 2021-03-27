@@ -5,7 +5,7 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import "semantic-ui-css/semantic.min.css";
 import Amplify from "aws-amplify";
-import config from "./aws-exports";
+import config from "../aws-exports";
 
 Amplify.configure(config);
 ReactDOM.render(<App />, document.getElementById("root"));
