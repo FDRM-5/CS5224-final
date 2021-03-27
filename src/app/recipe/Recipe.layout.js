@@ -103,8 +103,10 @@ const RecipeLayout = () => {
             icon: "cart",
             content: "Add",
             onClick: () => {
-              setIngredients((curr) => [...curr, ingredientInput]);
-              setIngredientInput("");
+              if (ingredientInput) {
+                setIngredients((curr) => [...curr, ingredientInput]);
+                setIngredientInput("");
+              }
             },
           }}
           type="text"
