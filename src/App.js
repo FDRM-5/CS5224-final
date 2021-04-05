@@ -22,15 +22,14 @@ const App = () => {
         <ErrorBoundary>
           <QueryClientProvider client={queryClient}>
             <Router>
-              <Navigate />
               <Switch>
                 <Route exact path="/" component={RecipeLayout} />
               </Switch>
             </Router>
           </QueryClientProvider>
-          <AmplifySignOut />
         </ErrorBoundary>
       </div>
+      <AmplifySignOut />
     </div>
   );
 };

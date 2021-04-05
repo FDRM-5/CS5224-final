@@ -11,6 +11,7 @@ import {
   List,
   Dropdown,
 } from "semantic-ui-react";
+import { Auth } from "aws-amplify";
 
 const RecipeLayout = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -18,11 +19,13 @@ const RecipeLayout = () => {
   const [ingredientInput, setIngredientInput] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState({});
+  const [savedRecipe, setSavedRecipe] = useState(null);
+  const [user, setUser] = useState(null);
 
   const [diet, setDiet] = useState("");
   const [cuisine, setCuisine] = useState("");
-  const [minCalories, setMinCalories] = useState(null);
-  const [maxCalories, setMaxCalories] = useState(null);
+  const [minCalories, setMinCalories] = useState("");
+  const [maxCalories, setMaxCalories] = useState("");
 
   const getRecipe = () => {
     if (!ingredients?.length) return;
@@ -48,16 +51,88 @@ const RecipeLayout = () => {
     getRecipe();
   };
 
+  const handleClearAll = () => {
+    setDiet("");
+    setCuisine("");
+    setMaxCalories("");
+    setMinCalories("");
+    getRecipe();
+  };
+
   const fetchRecipeDetails = (recipeId) => {
     fetch(
       `https://api.spoonacular.com/recipes/${recipeId}/information?includeNutrition=true&apiKey=42e08cd7ff414511b22437f94fcd728c`
     )
-      .then((res) => res.json())
+      .then((res) => {
+        return res.json();
+      })
       .then((res) => {
         setSelectedRecipe(res);
       })
       .catch((err) => console.log("An error occured:", err));
   };
+
+  const fetchSavedRecipes = () => {
+    if (!user?.username) return;
+    fetch(
+      `https://tvqetxrq89.execute-api.us-east-1.amazonaws.com/default/LambdaFunction?user_name=${user.username}`,
+      { mode: "no-cors" }
+    )
+      .then((res) => {
+        if (res) return res.json();
+        return res;
+      })
+      .then((res) => {
+        console.log("savedRecipes", res);
+        setSavedRecipe(res);
+      })
+      .catch((err) => console.log("An error occured:", err));
+  };
+
+  const saveRecipe = (selectedRecipe) => {
+    if (!user?.username) return;
+    fetch(
+      "https://tvqetxrq89.execute-api.us-east-1.amazonaws.com/default/LambdaFunction",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "no-cors",
+        body: JSON.stringify({
+          user_name: user?.username,
+          recipe: selectedRecipe,
+        }),
+      }
+    )
+      .then((res) => {
+        if (!res || !Object.keys(res)?.length) return;
+        return res.json();
+      })
+      .then((res) => {
+        console.log("res", res);
+        fetchSavedRecipes();
+      })
+      .catch((err) => console.log("An error occured:", err));
+  };
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
+        if (user?.attributes) {
+          setUser({ ...user.attributes, username: user.username });
+        }
+      } catch (err) {
+        alert("error in loading user", err);
+      }
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    fetchSavedRecipes();
+  }, [user]);
 
   return (
     <div css={{ padding: "70px 50px 50px 50px" }}>
@@ -67,10 +142,21 @@ const RecipeLayout = () => {
             <Header size="large">{selectedRecipe?.title}</Header>
             <div css={{ color: "#6c6f76" }}>{selectedRecipe?.id}</div>
             <Image size="large" src={selectedRecipe?.image} />
-            <Label color="teal">
-              <Icon name="thumbs up" size="large" />
-              {selectedRecipe?.aggregateLikes}
-            </Label>
+            <div
+              css={{ padding: "20px 0", display: "flex", alignItems: "center" }}
+            >
+              <Label color="teal">
+                <Icon name="thumbs up" size="large" />
+                {selectedRecipe?.aggregateLikes}
+              </Label>
+              <div
+                css={{ padding: "0 20px", color: "red", cursor: "pointer" }}
+                onClick={() => saveRecipe(selectedRecipe)}
+              >
+                <Icon name="favorite" />
+                <span css={{ fontSize: 12 }}>Add to favourites</span>
+              </div>
+            </div>
             <div css={{ padding: 10 }}>
               <Header size="small">Description</Header>
               <div
@@ -107,6 +193,17 @@ const RecipeLayout = () => {
           </div>
         )}
       </Modal>
+      {user?.username && (
+        <div css={{ marginBottom: 30 }}>
+          <Header size="huge">
+            <span>Hi, </span>
+            <span css={{ color: "#00b5ad" }}>{user.username}</span>
+            <Header.Subheader>
+              What would you like to cook today?
+            </Header.Subheader>
+          </Header>
+        </div>
+      )}
       <div css={{ width: 500 }}>
         <Input
           action={{
@@ -130,7 +227,7 @@ const RecipeLayout = () => {
           label="Ingredients"
         />
       </div>
-      <div css={{ marginTop: 50, display: "flex" }}>
+      <div css={{ marginTop: 50, display: "flex", alignItems: "center" }}>
         <div css={{ width: "20%", paddingRight: 15 }}>
           <Dropdown
             placeholder="Select diet..."
@@ -206,6 +303,13 @@ const RecipeLayout = () => {
               }
             }}
           />
+        </div>
+        <div
+          onClick={handleClearAll}
+          css={{ paddingRight: 15, cursor: "pointer" }}
+        >
+          <Icon name="redo" content="Clear all" color="grey" />
+          <span css={{ fontSize: 12, color: "#6c6f76" }}>Clear all</span>
         </div>
       </div>
       <div css={{ marginTop: 50 }}>
