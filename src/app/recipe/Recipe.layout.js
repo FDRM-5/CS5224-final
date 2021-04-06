@@ -21,6 +21,8 @@ const RecipeLayout = () => {
   const [selectedRecipe, setSelectedRecipe] = useState({});
   const [savedRecipe, setSavedRecipe] = useState(null);
   const [user, setUser] = useState(null);
+  const [userEmail, setUserEmail] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
 
   const [diet, setDiet] = useState("");
   const [cuisine, setCuisine] = useState("");
@@ -116,6 +118,31 @@ const RecipeLayout = () => {
       .catch((err) => console.log("An error occured:", err));
   };
 
+  const handleSendEmail = () => {
+    if (!selectedRecipe?.title) return;
+    fetch("https://0ayu5o2qzc.execute-api.us-east-1.amazonaws.com/Prod/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "no-cors",
+      body: JSON.stringify({
+        toEmails: [userEmail],
+        message: selectedRecipe.summary,
+        subject: `Hey, check out this recipe! ${selectedRecipe.title}`,
+      }),
+    })
+      .then((res) => {
+        if (!res || !Object.keys(res)?.length) return;
+        return res.json();
+      })
+      .then((res) => {
+        console.log("res", res);
+        setEmailSent(true);
+      })
+      .catch((err) => console.log("An error occured:", err));
+  };
+
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -131,7 +158,10 @@ const RecipeLayout = () => {
   }, []);
 
   useEffect(() => {
-    fetchSavedRecipes();
+    if (user?.email) {
+      fetchSavedRecipes();
+      setUserEmail(user.email);
+    }
   }, [user]);
 
   return (
@@ -149,13 +179,62 @@ const RecipeLayout = () => {
                 <Icon name="thumbs up" size="large" />
                 {selectedRecipe?.aggregateLikes}
               </Label>
-              <div
-                css={{ padding: "0 20px", color: "red", cursor: "pointer" }}
+              <Modal
+                onOpen={() => setEmailSent(false)}
+                size="tiny"
+                trigger={
+                  <Button size="small" color="blue">
+                    <Icon name="mail" />
+                    Email
+                  </Button>
+                }
+                closeIcon
+              >
+                <div
+                  css={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    padding: 50,
+                  }}
+                >
+                  <Header size="large">
+                    Share this recipe with your friends!
+                  </Header>
+                  <Header size="medium">{selectedRecipe?.title}</Header>
+                  <Input
+                    action={{
+                      color: "teal",
+                      labelPosition: "right",
+                      icon: "mail",
+                      content: "Email",
+                    }}
+                    type="text"
+                    placeholder="Email address"
+                    value={userEmail}
+                    onChange={(e, data) => {
+                      setUserEmail(data.value);
+                    }}
+                  />
+                  <div css={{ paddingTop: 50 }}>
+                    <Button
+                      color="yellow"
+                      content={emailSent ? "Sent!" : "Send"}
+                      onClick={handleSendEmail}
+                      disabled={emailSent}
+                    />
+                  </div>
+                </div>
+              </Modal>
+              <Button
+                size="small"
+                color="red"
+                basic
                 onClick={() => saveRecipe(selectedRecipe)}
               >
                 <Icon name="favorite" />
-                <span css={{ fontSize: 12 }}>Add to favourites</span>
-              </div>
+                Add to favourites
+              </Button>
             </div>
             <div css={{ padding: 10 }}>
               <Header size="small">Description</Header>
