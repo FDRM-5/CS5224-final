@@ -4,13 +4,10 @@ import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 
 // Third-party packages
 import { QueryClient, QueryClientProvider } from "react-query";
-import { Global, css } from "@emotion/react";
 
 // Local components
 import ErrorBoundary from "./app/errorboundary/ErrorBoundary";
-import Navigate from "./app/navigate/Navigate";
 import RecipeLayout from "./app/recipe/Recipe.layout";
-import { Loader } from "./common";
 import { withAuthenticator, AmplifySignOut } from "@aws-amplify/ui-react";
 
 const queryClient = new QueryClient();
