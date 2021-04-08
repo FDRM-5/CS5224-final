@@ -69,13 +69,10 @@ const RecipeLayout = () => {
     )
       .then((res) => res.json())
       .then((res) => {
-        const processedResult = res?.results?.map((result) => {
-          const caloriesObj = result?.nutrition?.nutrients?.filter(
-            (nutrient) => nutrient.name === "Calories"
-          );
-          return Object.assign({}, result, { calories: caloriesObj?.[0] });
-        });
-        setSelectedRecipe(processedResult);
+        const caloriesObj = res?.nutrition?.nutrients?.filter(
+          (nutrient) => nutrient.name === "Calories"
+        );
+        setSelectedRecipe({ ...res, calories: caloriesObj?.[0] });
       })
       .catch((err) => console.log("An error occured:", err));
   };
@@ -93,7 +90,7 @@ const RecipeLayout = () => {
       .catch((err) => console.log("An error occured:", err));
   };
 
-  const saveRecipe = (selectedRecipe) => {
+  const saveRecipe = (chosenRecipe) => {
     if (!user?.username) return;
     fetch(
       "https://tvqetxrq89.execute-api.us-east-1.amazonaws.com/default/LambdaFunction",
@@ -105,7 +102,7 @@ const RecipeLayout = () => {
         mode: "no-cors",
         body: JSON.stringify({
           user_name: user.username,
-          recipe: { ...selectedRecipe, savedOn: new Date() },
+          recipe: { ...chosenRecipe, savedOn: new Date() },
         }),
       }
     )
