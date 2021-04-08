@@ -12,6 +12,7 @@ import {
   Dropdown,
 } from "semantic-ui-react";
 import { Auth } from "aws-amplify";
+import moment from "moment";
 
 const RecipeLayout = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -23,6 +24,7 @@ const RecipeLayout = () => {
   const [user, setUser] = useState(null);
   const [userEmail, setUserEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [favouriteAdded, setFavouriteAdded] = useState(false);
 
   const [diet, setDiet] = useState("");
   const [cuisine, setCuisine] = useState("");
@@ -65,11 +67,15 @@ const RecipeLayout = () => {
     fetch(
       `https://api.spoonacular.com/recipes/${recipeId}/information?includeNutrition=true&apiKey=42e08cd7ff414511b22437f94fcd728c`
     )
+      .then((res) => res.json())
       .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        setSelectedRecipe(res);
+        const processedResult = res?.results?.map((result) => {
+          const caloriesObj = result?.nutrition?.nutrients?.filter(
+            (nutrient) => nutrient.name === "Calories"
+          );
+          return Object.assign({}, result, { calories: caloriesObj?.[0] });
+        });
+        setSelectedRecipe(processedResult);
       })
       .catch((err) => console.log("An error occured:", err));
   };
@@ -98,8 +104,8 @@ const RecipeLayout = () => {
         },
         mode: "no-cors",
         body: JSON.stringify({
-          user_name: user?.username,
-          recipe: selectedRecipe,
+          user_name: user.username,
+          recipe: { ...selectedRecipe, savedOn: new Date() },
         }),
       }
     )
@@ -107,7 +113,8 @@ const RecipeLayout = () => {
         if (!res || !Object.keys(res)?.length) return;
         return res.json();
       })
-      .then((res) => {
+      .then(() => {
+        setFavouriteAdded(true);
         fetchSavedRecipes();
       })
       .catch((err) => console.log("An error occured:", err));
@@ -171,7 +178,12 @@ const RecipeLayout = () => {
         }}
       >
         <div css={{ width: "70%" }}>
-          <Modal open={openModal} onClose={() => setOpenModal(false)} closeIcon>
+          <Modal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            onOpen={() => setFavouriteAdded(false)}
+            closeIcon
+          >
             {selectedRecipe?.id ? (
               <div css={{ padding: 50 }}>
                 <Header size="large">{selectedRecipe?.title}</Header>
@@ -238,11 +250,12 @@ const RecipeLayout = () => {
                   <Button
                     size="small"
                     color="red"
-                    basic
+                    basic={!favouriteAdded}
+                    disabled={favouriteAdded}
                     onClick={() => saveRecipe(selectedRecipe)}
                   >
                     <Icon name="favorite" />
-                    Add to favourites
+                    {favouriteAdded ? "Added!" : "Add to favourites"}
                   </Button>
                 </div>
                 <div css={{ padding: 10 }}>
@@ -488,17 +501,30 @@ const RecipeLayout = () => {
                 css={{ cursor: "pointer" }}
               >
                 <Card fluid style={{ marginBottom: 10 }}>
-                  <Card.Content>
-                    <Card.Header>{meal.title}</Card.Header>
-                    <Image src={meal.image} size="small" />
-                    <Label color="red" tag>
-                      <Icon name="thumbs up" size="small" />
-                      {meal?.likes}
+                  <Card.Content style={{ paddingTop: 2 }}>
+                    <Label
+                      size="mini"
+                      color={
+                        meal?.healthScore < 40
+                          ? "red"
+                          : meal?.healthScore < 60
+                          ? "yellow"
+                          : "green"
+                      }
+                      ribbon
+                    >
+                      {`Health score: ${meal?.healthScore}`}
                     </Label>
+                    <Card.Header style={{ paddingTop: 10 }}>
+                      {meal.title}
+                    </Card.Header>
+                    <Image src={meal.image} size="small" />
                     <List>
                       <List.Item>
                         <div css={{ fontSize: 10, opacity: 0.4 }}>
-                          {`Saved on ${meal.savedOn}`}
+                          {`Saved on ${moment(meal.savedOn).format(
+                            "DD MMM YYYY"
+                          )}`}
                         </div>
                       </List.Item>
                       <List.Item>
@@ -552,39 +578,54 @@ const RecipeLayout = () => {
                     setOpenModal(true);
                   }}
                 >
-                  <Card style={{ margin: 10, padding: 10 }}>
-                    <Card.Header>{recipe.title}</Card.Header>
-                    <Card.Content>
+                  <Card style={{ marginBottom: 20 }}>
+                    <Card.Content style={{ paddingTop: 5 }}>
+                      <Label
+                        size="mini"
+                        color={
+                          recipe?.healthScore < 40
+                            ? "red"
+                            : recipe?.healthScore < 60
+                            ? "yellow"
+                            : "green"
+                        }
+                        ribbon
+                      >
+                        {`Health score: ${recipe?.healthScore}`}
+                      </Label>
+                      <Card.Header style={{ paddingTop: 10 }}>
+                        {recipe.title}
+                      </Card.Header>
                       <Image src={recipe.image} size="small" />
                       <Label color="red" tag>
                         <Icon name="thumbs up" size="small" />
                         {recipe?.likes}
                       </Label>
-                    </Card.Content>
-                    <List>
-                      <List.Item>
-                        <Icon name="hand point right" />
-                        {`Protein: ${recipe?.nutrition?.caloricBreakdown?.percentProtein}%`}
-                      </List.Item>
-                      <List.Item>
-                        <Icon name="hand point right" />
-                        {`Fat: ${recipe?.nutrition?.caloricBreakdown?.percentFat}%`}
-                      </List.Item>
-                      <List.Item>
-                        <Icon name="hand point right" />
-                        {`Carb: ${recipe?.nutrition?.caloricBreakdown?.percentCarbs}%`}
-                      </List.Item>
-                      <List.Item>
-                        <Icon name="gripfire" color="orange" />
-                        {`Calories: ${recipe?.calories?.amount} ${recipe?.calories?.unit}`}
-                      </List.Item>
-                      {recipe?.vegetarian && (
+                      <List>
                         <List.Item>
-                          <Icon name="leaf" color="green" />
-                          Vegetarian
+                          <Icon name="hand point right" />
+                          {`Protein: ${recipe?.nutrition?.caloricBreakdown?.percentProtein}%`}
                         </List.Item>
-                      )}
-                    </List>
+                        <List.Item>
+                          <Icon name="hand point right" />
+                          {`Fat: ${recipe?.nutrition?.caloricBreakdown?.percentFat}%`}
+                        </List.Item>
+                        <List.Item>
+                          <Icon name="hand point right" />
+                          {`Carb: ${recipe?.nutrition?.caloricBreakdown?.percentCarbs}%`}
+                        </List.Item>
+                        <List.Item>
+                          <Icon name="gripfire" color="orange" />
+                          {`Calories: ${recipe?.calories?.amount} ${recipe?.calories?.unit}`}
+                        </List.Item>
+                        {recipe?.vegetarian && (
+                          <List.Item>
+                            <Icon name="leaf" color="green" />
+                            Vegetarian
+                          </List.Item>
+                        )}
+                      </List>
+                    </Card.Content>
                   </Card>
                 </div>
               ))}
