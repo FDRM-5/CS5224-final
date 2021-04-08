@@ -13,8 +13,11 @@ import {
 } from "semantic-ui-react";
 import { Auth } from "aws-amplify";
 import moment from "moment";
+import { useToasts } from "react-toast-notifications";
 
 const RecipeLayout = () => {
+  const { addToast } = useToasts();
+
   const [ingredients, setIngredients] = useState([]);
   const [recipes, setRecipes] = useState([]);
   const [ingredientInput, setIngredientInput] = useState("");
@@ -112,9 +115,21 @@ const RecipeLayout = () => {
       })
       .then(() => {
         setFavouriteAdded(true);
+        addToast(
+          `Your recipe (${chosenRecipe.title}) has been saved successfully`,
+          {
+            appearance: "success",
+            autoDismiss: true,
+          }
+        );
         fetchSavedRecipes();
       })
-      .catch((err) => console.log("An error occured:", err));
+      .catch((err) => {
+        addToast(`An error occurred`, {
+          appearance: "error",
+          autoDismiss: true,
+        });
+      });
   };
 
   const handleSendEmail = () => {
@@ -139,8 +154,20 @@ const RecipeLayout = () => {
       })
       .then((res) => {
         setEmailSent(true);
+        addToast(
+          `Your recipe (${selectedRecipe.title}) has been emailed successfully`,
+          {
+            appearance: "success",
+            autoDismiss: true,
+          }
+        );
       })
-      .catch((err) => console.log("An error occured:", err));
+      .catch((err) => {
+        addToast(`An error occurred`, {
+          appearance: "error",
+          autoDismiss: true,
+        });
+      });
   };
 
   useEffect(() => {

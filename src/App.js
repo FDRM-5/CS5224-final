@@ -4,6 +4,7 @@ import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 
 // Third-party packages
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ToastProvider } from "react-toast-notifications";
 
 // Local components
 import ErrorBoundary from "./app/errorboundary/ErrorBoundary";
@@ -18,11 +19,13 @@ const App = () => {
       <div css={{ width: 1200 }}>
         <ErrorBoundary>
           <QueryClientProvider client={queryClient}>
-            <Router>
-              <Switch>
-                <Route exact path="/" component={RecipeLayout} />
-              </Switch>
-            </Router>
+            <ToastProvider autoDismiss autoDismissTimeout={6000}>
+              <Router>
+                <Switch>
+                  <Route exact path="/" component={RecipeLayout} />
+                </Switch>
+              </Router>
+            </ToastProvider>
           </QueryClientProvider>
         </ErrorBoundary>
       </div>
