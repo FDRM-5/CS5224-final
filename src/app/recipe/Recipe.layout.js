@@ -119,7 +119,7 @@ const RecipeLayout = () => {
 
   const handleSendEmail = () => {
     if (!selectedRecipe?.title) return;
-    fetch("https://0ayu5o2qzc.execute-api.us-east-1.amazonaws.com/Prod/send", {
+    fetch("https://r81rf1r0l9.execute-api.us-east-1.amazonaws.com/Prod/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -177,8 +177,10 @@ const RecipeLayout = () => {
         <div css={{ width: "70%" }}>
           <Modal
             open={openModal}
-            onClose={() => setOpenModal(false)}
-            onOpen={() => setFavouriteAdded(false)}
+            onClose={() => {
+              setFavouriteAdded(false);
+              setOpenModal(false);
+            }}
             closeIcon
           >
             {selectedRecipe?.id ? (
