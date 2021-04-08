@@ -168,295 +168,381 @@ const RecipeLayout = () => {
   }, [user]);
 
   return (
-    <div
-      css={{
-        padding: "70px 50px 50px 50px",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-      }}
-    >
-      <div css={{ width: "70%" }}>
-        <Modal open={openModal} onClose={() => setOpenModal(false)} closeIcon>
-          {selectedRecipe?.id ? (
-            <div css={{ padding: 50 }}>
-              <Header size="large">{selectedRecipe?.title}</Header>
-              <div css={{ color: "#6c6f76" }}>{selectedRecipe?.id}</div>
-              <Image size="large" src={selectedRecipe?.image} />
-              <div
-                css={{
-                  padding: "20px 0",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                <Label color="teal">
-                  <Icon name="thumbs up" size="large" />
-                  {selectedRecipe?.aggregateLikes}
-                </Label>
-                <Modal
-                  onOpen={() => setEmailSent(false)}
-                  size="tiny"
-                  trigger={
-                    <Button size="small" color="blue">
-                      <Icon name="mail" />
-                      Email
-                    </Button>
-                  }
-                  closeIcon
-                >
-                  <div
-                    css={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      padding: 50,
-                    }}
-                  >
-                    <Header size="large">
-                      Share this recipe with your friends!
-                    </Header>
-                    <Header size="medium">{selectedRecipe?.title}</Header>
-                    <Input
-                      action={{
-                        color: "teal",
-                        labelPosition: "right",
-                        icon: "mail",
-                        content: "Email",
-                      }}
-                      type="text"
-                      placeholder="Email address"
-                      value={userEmail}
-                      onChange={(e, data) => {
-                        setUserEmail(data.value);
-                      }}
-                    />
-                    <div css={{ paddingTop: 50 }}>
-                      <Button
-                        color="yellow"
-                        content={emailSent ? "Sent!" : "Send"}
-                        onClick={handleSendEmail}
-                        disabled={emailSent}
-                      />
-                    </div>
-                  </div>
-                </Modal>
-                <Button
-                  size="small"
-                  color="red"
-                  basic
-                  onClick={() => saveRecipe(selectedRecipe)}
-                >
-                  <Icon name="favorite" />
-                  Add to favourites
-                </Button>
-              </div>
-              <div css={{ padding: 10 }}>
-                <Header size="small">Description</Header>
+    <div css={{ padding: "70px 50px 50px 50px" }}>
+      <div
+        css={{
+          width: "100%",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+        }}
+      >
+        <div css={{ width: "70%" }}>
+          <Modal open={openModal} onClose={() => setOpenModal(false)} closeIcon>
+            {selectedRecipe?.id ? (
+              <div css={{ padding: 50 }}>
+                <Header size="large">{selectedRecipe?.title}</Header>
+                <div css={{ color: "#6c6f76" }}>{selectedRecipe?.id}</div>
+                <Image size="large" src={selectedRecipe?.image} />
                 <div
-                  dangerouslySetInnerHTML={{ __html: selectedRecipe?.summary }}
-                />
-              </div>
-              <div css={{ padding: "25px 0" }}>
-                <Header size="small">Details</Header>
-                <List bulleted>
-                  <List.Item>{`Ready in: ${selectedRecipe?.readyInMinutes}`}</List.Item>
-                  <List.Item>{`Serves: ${selectedRecipe?.servings}`}</List.Item>
-                  <List.Item>{`Health score: ${selectedRecipe?.healthScore}`}</List.Item>
-                </List>
-              </div>
-              <div css={{ padding: "25px 0" }}>
-                <Header size="small">Ingredients</Header>
-                <List bulleted>
-                  {selectedRecipe?.extendedIngredients?.map((item) => (
-                    <List.Item>{`${item.original}`}</List.Item>
-                  ))}
-                </List>
-              </div>
-            </div>
-          ) : (
-            <div
-              css={{
-                padding: 50,
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <Icon loading name="spinner" size="huge" />
-            </div>
-          )}
-        </Modal>
-        {user?.username && (
-          <div css={{ marginBottom: 30 }}>
-            <Header size="huge">
-              <span>Hi, </span>
-              <span css={{ color: "#00b5ad" }}>{user.username}</span>
-              <Header.Subheader>
-                What would you like to cook today?
-              </Header.Subheader>
-            </Header>
-          </div>
-        )}
-        <div css={{ width: 500 }}>
-          <Input
-            action={{
-              color: "teal",
-              labelPosition: "right",
-              icon: "cart",
-              content: "Add",
-              onClick: () => {
-                if (ingredientInput) {
-                  setIngredients((curr) => [...curr, ingredientInput]);
-                  setIngredientInput("");
-                }
-              },
-            }}
-            type="text"
-            placeholder="Ingredients"
-            value={ingredientInput}
-            onChange={(e, data) => {
-              setIngredientInput(data.value);
-            }}
-            label="Ingredients"
-          />
-        </div>
-        <div css={{ marginTop: 50, display: "flex", alignItems: "center" }}>
-          <div css={{ width: "20%", paddingRight: 10 }}>
-            <Dropdown
-              placeholder="Select diet..."
-              fluid
-              search
-              selection
-              options={[
-                {
-                  key: "Gluten Free",
-                  value: "Gluten Free",
-                  text: "Gluten Free",
-                },
-                { key: "Ketogenic", value: "Ketogenic", text: "Ketogenic" },
-                { key: "Vegetarian", value: "Vegetarian", text: "Vegetarian" },
-                { key: "Vegan", value: "Vegan", text: "Vegan" },
-              ]}
-              onChange={(e, { value }) => {
-                setDiet(value);
-              }}
-              value={diet}
-            />
-          </div>
-          <div css={{ width: "20%", paddingRight: 10 }}>
-            <Dropdown
-              placeholder="Select cuisine..."
-              fluid
-              search
-              selection
-              options={[
-                { key: "American", value: "American", text: "American" },
-                { key: "British", value: "British", text: "British" },
-                { key: "Chinese", value: "Chinese", text: "Chinese" },
-                { key: "French", value: "French", text: "French" },
-                { key: "Indian", value: "Indian", text: "Indian" },
-                { key: "Italian", value: "Italian", text: "Italian" },
-                { key: "Mexican", value: "Mexican", text: "Mexican" },
-                {
-                  key: "Middle Eastern",
-                  value: "Middle Eastern",
-                  text: "Middle Eastern",
-                },
-                { key: "Nordic", value: "Nordic", text: "Nordic" },
-                { key: "Spanish", value: "Spanish", text: "Spanish" },
-                { key: "Thai", value: "Thai", text: "Thai" },
-                { key: "Vietnamese", value: "Vietnamese", text: "Vietnamese" },
-              ]}
-              onChange={(e, { value }) => {
-                setCuisine(value);
-              }}
-              value={cuisine}
-            />
-          </div>
-          <div css={{ paddingRight: 10, width: "24%" }}>
-            <Input
-              style={{ width: 120 }}
-              label={{ basic: true, content: "Kcal" }}
-              labelPosition="right"
-              placeholder="Min calories..."
-              value={minCalories}
-              onChange={(e, { value }) => {
-                const int = /^[0-9\b]+$/;
-                if (int.test(value) || value === "") {
-                  setMinCalories(value);
-                }
-              }}
-            />
-          </div>
-          <div css={{ paddingRight: 10, width: "24%" }}>
-            <Input
-              style={{ width: 120 }}
-              label={{ basic: true, content: "Kcal" }}
-              labelPosition="right"
-              placeholder="Max calories..."
-              value={maxCalories}
-              onChange={(e, { value }) => {
-                const int = /^[0-9\b]+$/;
-                if (int.test(value) || value === "") {
-                  setMaxCalories(value);
-                }
-              }}
-            />
-          </div>
-          <div
-            onClick={handleClearAll}
-            css={{ paddingRight: 15, cursor: "pointer" }}
-          >
-            <Icon name="redo" content="Clear all" color="grey" />
-            <span css={{ fontSize: 12, color: "#6c6f76" }}>Clear all</span>
-          </div>
-        </div>
-        <div css={{ marginTop: 50 }}>
-          {ingredients?.length > 0 ? (
-            <Card>
-              <div css={{ padding: 20 }}>
-                <Header size="tiny" style={{ textDecoration: "underline" }}>
-                  Ingredients
-                </Header>
-                {ingredients.map((i) => (
-                  <Label color="green" size="large">
-                    {i}{" "}
-                    <Icon name="close" onClick={() => removeIngredient(i)} />
+                  css={{
+                    padding: "20px 0",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Label color="teal">
+                    <Icon name="thumbs up" size="large" />
+                    {selectedRecipe?.aggregateLikes}
                   </Label>
-                ))}
-              </div>
-            </Card>
-          ) : (
-            <Card>
-              <div css={{ padding: 20 }}>
-                <Header size="tiny" style={{ textDecoration: "underline" }}>
-                  Ingredients
-                </Header>
-                <div css={{ fontSize: 12, opacity: 0.4 }}>
-                  Your chosen ingredients will be listed here...
+                  <Modal
+                    onOpen={() => setEmailSent(false)}
+                    size="tiny"
+                    trigger={
+                      <Button size="small" color="blue">
+                        <Icon name="mail" />
+                        Email
+                      </Button>
+                    }
+                    closeIcon
+                  >
+                    <div
+                      css={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        padding: 50,
+                      }}
+                    >
+                      <Header size="large">
+                        Share this recipe with your friends!
+                      </Header>
+                      <Header size="medium">{selectedRecipe?.title}</Header>
+                      <Input
+                        action={{
+                          color: "teal",
+                          labelPosition: "right",
+                          icon: "mail",
+                          content: "Email",
+                        }}
+                        type="text"
+                        placeholder="Email address"
+                        value={userEmail}
+                        onChange={(e, data) => {
+                          setUserEmail(data.value);
+                        }}
+                      />
+                      <div css={{ paddingTop: 50 }}>
+                        <Button
+                          color="yellow"
+                          content={emailSent ? "Sent!" : "Send"}
+                          onClick={handleSendEmail}
+                          disabled={emailSent}
+                        />
+                      </div>
+                    </div>
+                  </Modal>
+                  <Button
+                    size="small"
+                    color="red"
+                    basic
+                    onClick={() => saveRecipe(selectedRecipe)}
+                  >
+                    <Icon name="favorite" />
+                    Add to favourites
+                  </Button>
+                </div>
+                <div css={{ padding: 10 }}>
+                  <Header size="small">Description</Header>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: selectedRecipe?.summary,
+                    }}
+                  />
+                </div>
+                <div css={{ padding: "25px 0" }}>
+                  <Header size="small">Details</Header>
+                  <List bulleted>
+                    <List.Item>{`Ready in: ${selectedRecipe?.readyInMinutes}`}</List.Item>
+                    <List.Item>{`Serves: ${selectedRecipe?.servings}`}</List.Item>
+                    <List.Item>{`Health score: ${selectedRecipe?.healthScore}`}</List.Item>
+                  </List>
+                </div>
+                <div css={{ padding: "25px 0" }}>
+                  <Header size="small">Ingredients</Header>
+                  <List bulleted>
+                    {selectedRecipe?.extendedIngredients?.map((item) => (
+                      <List.Item>{`${item.original}`}</List.Item>
+                    ))}
+                  </List>
                 </div>
               </div>
-            </Card>
+            ) : (
+              <div
+                css={{
+                  padding: 50,
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon loading name="spinner" size="huge" />
+              </div>
+            )}
+          </Modal>
+          {user?.username && (
+            <div css={{ marginBottom: 30 }}>
+              <Header size="huge">
+                <span>Hi, </span>
+                <span css={{ color: "#00b5ad" }}>{user.username}</span>
+                <Header.Subheader>
+                  What would you like to cook today?
+                </Header.Subheader>
+              </Header>
+            </div>
           )}
-        </div>
-        <div css={{ marginTop: 50 }}>
-          <Button
-            content="Find me recipes"
-            color="teal"
-            onClick={getRecipe}
-            disabled={ingredients?.length === 0}
-          />
-        </div>
-        {recipes?.length > 0 && (
+          <div css={{ width: 500 }}>
+            <Input
+              action={{
+                color: "teal",
+                labelPosition: "right",
+                icon: "cart",
+                content: "Add",
+                onClick: () => {
+                  if (ingredientInput) {
+                    setIngredients((curr) => [...curr, ingredientInput]);
+                    setIngredientInput("");
+                  }
+                },
+              }}
+              type="text"
+              placeholder="Ingredients"
+              value={ingredientInput}
+              onChange={(e, data) => {
+                setIngredientInput(data.value);
+              }}
+              label="Ingredients"
+            />
+          </div>
+          <div css={{ marginTop: 50, display: "flex", alignItems: "center" }}>
+            <div css={{ width: "20%", paddingRight: 10 }}>
+              <Dropdown
+                placeholder="Select diet..."
+                fluid
+                search
+                selection
+                options={[
+                  {
+                    key: "Gluten Free",
+                    value: "Gluten Free",
+                    text: "Gluten Free",
+                  },
+                  { key: "Ketogenic", value: "Ketogenic", text: "Ketogenic" },
+                  {
+                    key: "Vegetarian",
+                    value: "Vegetarian",
+                    text: "Vegetarian",
+                  },
+                  { key: "Vegan", value: "Vegan", text: "Vegan" },
+                ]}
+                onChange={(e, { value }) => {
+                  setDiet(value);
+                }}
+                value={diet}
+              />
+            </div>
+            <div css={{ width: "20%", paddingRight: 10 }}>
+              <Dropdown
+                placeholder="Select cuisine..."
+                fluid
+                search
+                selection
+                options={[
+                  { key: "American", value: "American", text: "American" },
+                  { key: "British", value: "British", text: "British" },
+                  { key: "Chinese", value: "Chinese", text: "Chinese" },
+                  { key: "French", value: "French", text: "French" },
+                  { key: "Indian", value: "Indian", text: "Indian" },
+                  { key: "Italian", value: "Italian", text: "Italian" },
+                  { key: "Mexican", value: "Mexican", text: "Mexican" },
+                  {
+                    key: "Middle Eastern",
+                    value: "Middle Eastern",
+                    text: "Middle Eastern",
+                  },
+                  { key: "Nordic", value: "Nordic", text: "Nordic" },
+                  { key: "Spanish", value: "Spanish", text: "Spanish" },
+                  { key: "Thai", value: "Thai", text: "Thai" },
+                  {
+                    key: "Vietnamese",
+                    value: "Vietnamese",
+                    text: "Vietnamese",
+                  },
+                ]}
+                onChange={(e, { value }) => {
+                  setCuisine(value);
+                }}
+                value={cuisine}
+              />
+            </div>
+            <div css={{ paddingRight: 10, width: "24%" }}>
+              <Input
+                style={{ width: 120 }}
+                label={{ basic: true, content: "Kcal" }}
+                labelPosition="right"
+                placeholder="Min calories..."
+                value={minCalories}
+                onChange={(e, { value }) => {
+                  const int = /^[0-9\b]+$/;
+                  if (int.test(value) || value === "") {
+                    setMinCalories(value);
+                  }
+                }}
+              />
+            </div>
+            <div css={{ paddingRight: 10, width: "24%" }}>
+              <Input
+                style={{ width: 120 }}
+                label={{ basic: true, content: "Kcal" }}
+                labelPosition="right"
+                placeholder="Max calories..."
+                value={maxCalories}
+                onChange={(e, { value }) => {
+                  const int = /^[0-9\b]+$/;
+                  if (int.test(value) || value === "") {
+                    setMaxCalories(value);
+                  }
+                }}
+              />
+            </div>
+            <div
+              onClick={handleClearAll}
+              css={{ paddingRight: 15, cursor: "pointer" }}
+            >
+              <Icon name="redo" content="Clear all" color="grey" />
+              <span css={{ fontSize: 12, color: "#6c6f76" }}>Clear all</span>
+            </div>
+          </div>
           <div css={{ marginTop: 50 }}>
+            {ingredients?.length > 0 ? (
+              <Card>
+                <div css={{ padding: 20 }}>
+                  <Header size="tiny" style={{ textDecoration: "underline" }}>
+                    Ingredients
+                  </Header>
+                  {ingredients.map((i) => (
+                    <Label color="green" size="large">
+                      {i}{" "}
+                      <Icon name="close" onClick={() => removeIngredient(i)} />
+                    </Label>
+                  ))}
+                </div>
+              </Card>
+            ) : (
+              <Card>
+                <div css={{ padding: 20 }}>
+                  <Header size="tiny" style={{ textDecoration: "underline" }}>
+                    Ingredients
+                  </Header>
+                  <div css={{ fontSize: 12, opacity: 0.4 }}>
+                    Your chosen ingredients will be listed here...
+                  </div>
+                </div>
+              </Card>
+            )}
+          </div>
+          <div css={{ marginTop: 50 }}>
+            <Button
+              content="Find me recipes"
+              color="teal"
+              onClick={getRecipe}
+              disabled={ingredients?.length === 0}
+            />
+          </div>
+        </div>
+        <div
+          css={{
+            width: "30%",
+            minHeight: 500,
+            background: "rgba(0,0,0,0.1)",
+            borderRadius: 3,
+            marginTop: 50,
+            padding: 15,
+          }}
+        >
+          <div
+            css={{
+              fontSize: 14,
+              fontWeight: 700,
+              textDecoration: "underline",
+              paddingBottom: 15,
+            }}
+          >
+            Saved Recipes
+          </div>
+          {exampleRecipes.map((meal) => (
+            <div
+              onClick={() => {
+                fetchRecipeDetails(meal.id);
+                setOpenModal(true);
+              }}
+              css={{ cursor: "pointer" }}
+            >
+              <Card fluid style={{ marginBottom: 10 }}>
+                <Card.Content>
+                  <Card.Header>{meal.title}</Card.Header>
+                  <Image src={meal.image} size="small" />
+                  <Label color="red" tag>
+                    <Icon name="thumbs up" size="small" />
+                    {meal?.likes}
+                  </Label>
+                  <List>
+                    <List.Item>
+                      <div css={{ fontSize: 10, opacity: 0.4 }}>
+                        {`Saved on ${meal.savedOn}`}
+                      </div>
+                    </List.Item>
+                    <List.Item>
+                      <Icon name="gripfire" color="orange" />
+                      {`Calories: ${meal?.calories?.amount} ${meal?.calories?.unit}`}
+                    </List.Item>
+                    {meal?.vegetarian && (
+                      <List.Item>
+                        <Icon name="leaf" color="green" />
+                        Vegetarian
+                      </List.Item>
+                    )}
+                  </List>
+                </Card.Content>
+              </Card>
+            </div>
+          ))}
+        </div>
+      </div>
+      {recipes?.length > 0 && (
+        <div
+          css={{
+            width: "100%",
+            marginTop: 20,
+            background: "rgba(0,0,0,0.05)",
+            borderRadius: 3,
+            padding: 20,
+          }}
+        >
+          <div>
             <Header
               content={
                 ingredients?.length ? "Your recipes" : "Featured recipes"
               }
               size="small"
             />
-            <div css={{ display: "flex", flexWrap: "wrap" }}>
+            <div
+              css={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-evenly",
+              }}
+            >
               {recipes?.slice(0, 6)?.map((recipe) => (
                 <div
                   onClick={() => {
@@ -502,66 +588,8 @@ const RecipeLayout = () => {
               ))}
             </div>
           </div>
-        )}
-      </div>
-      <div
-        css={{
-          width: "30%",
-          minHeight: 500,
-          background: "rgba(0,0,0,0.1)",
-          borderRadius: 3,
-          marginTop: 50,
-          padding: 15,
-        }}
-      >
-        <div
-          css={{
-            fontSize: 14,
-            fontWeight: 700,
-            textDecoration: "underline",
-            paddingBottom: 15,
-          }}
-        >
-          Saved Recipes
         </div>
-        {exampleRecipes.map((meal) => (
-          <div
-            onClick={() => {
-              fetchRecipeDetails(meal.id);
-              setOpenModal(true);
-            }}
-            css={{ cursor: "pointer" }}
-          >
-            <Card fluid style={{ marginBottom: 10 }}>
-              <Card.Content>
-                <Card.Header>{meal.title}</Card.Header>
-                <Image src={meal.image} size="small" />
-                <Label color="red" tag>
-                  <Icon name="thumbs up" size="small" />
-                  {meal?.likes}
-                </Label>
-                <List>
-                  <List.Item>
-                    <div css={{ fontSize: 10, opacity: 0.4 }}>
-                      {`Saved on ${meal.savedOn}`}
-                    </div>
-                  </List.Item>
-                  <List.Item>
-                    <Icon name="gripfire" color="orange" />
-                    {`Calories: ${meal?.calories?.amount} ${meal?.calories?.unit}`}
-                  </List.Item>
-                  {meal?.vegetarian && (
-                    <List.Item>
-                      <Icon name="leaf" color="green" />
-                      Vegetarian
-                    </List.Item>
-                  )}
-                </List>
-              </Card.Content>
-            </Card>
-          </div>
-        ))}
-      </div>
+      )}
     </div>
   );
 };
