@@ -95,6 +95,10 @@ const RecipeLayout = () => {
 
   const saveRecipe = (chosenRecipe) => {
     if (!user?.username) return;
+    addToast("Adding to favourites...", {
+      appearance: "info",
+      autoDismiss: true,
+    });
     fetch(
       "https://tvqetxrq89.execute-api.us-east-1.amazonaws.com/default/LambdaFunction",
       {
@@ -134,6 +138,10 @@ const RecipeLayout = () => {
 
   const handleSendEmail = () => {
     if (!selectedRecipe?.title) return;
+    addToast("Sending...", {
+      appearance: "info",
+      autoDismiss: true,
+    });
     fetch("https://r81rf1r0l9.execute-api.us-east-1.amazonaws.com/Prod/send", {
       method: "POST",
       headers: {
