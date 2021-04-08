@@ -129,8 +129,10 @@ const RecipeLayout = () => {
       mode: "no-cors",
       body: JSON.stringify({
         toEmails: [userEmail],
-        message: selectedRecipe.summary,
         subject: `Hey, check out this recipe! ${selectedRecipe.title}`,
+        message: `${selectedRecipe.title} (${selectedRecipe.id})\n\n${
+          selectedRecipe.summary?.replace(/<[^>]+>/g, "") || ""
+        }\n\n Find the recipe here: ${selectedRecipe.sourceUrl}`,
       }),
     })
       .then((res) => {
