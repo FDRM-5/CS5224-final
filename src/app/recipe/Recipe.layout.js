@@ -12,7 +12,6 @@ import {
   Dropdown,
 } from "semantic-ui-react";
 import { Auth } from "aws-amplify";
-import { exampleRecipes } from "@common/constants";
 
 const RecipeLayout = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -78,16 +77,12 @@ const RecipeLayout = () => {
   const fetchSavedRecipes = () => {
     if (!user?.username) return;
     fetch(
-      `https://tvqetxrq89.execute-api.us-east-1.amazonaws.com/default/LambdaFunction?user_name=${user.username}`,
-      { mode: "no-cors" }
+      `https://tvqetxrq89.execute-api.us-east-1.amazonaws.com/default/LambdaFunction?user_name=${user.username}`
     )
+      .then((res) => res.json())
       .then((res) => {
-        if (res) return res.json();
-        return res;
-      })
-      .then((res) => {
-        console.log("savedRecipes", res);
-        setSavedRecipe(res);
+        const processedRecipes = res?.Items?.map((result) => result.recipe);
+        setSavedRecipe(processedRecipes);
       })
       .catch((err) => console.log("An error occured:", err));
   };
@@ -113,7 +108,6 @@ const RecipeLayout = () => {
         return res.json();
       })
       .then((res) => {
-        console.log("res", res);
         fetchSavedRecipes();
       })
       .catch((err) => console.log("An error occured:", err));
@@ -140,7 +134,6 @@ const RecipeLayout = () => {
         return res.json();
       })
       .then((res) => {
-        console.log("res", res);
         setEmailSent(true);
       })
       .catch((err) => console.log("An error occured:", err));
@@ -463,7 +456,12 @@ const RecipeLayout = () => {
         <div
           css={{
             width: "30%",
-            minHeight: 500,
+            height: 500,
+            maxHeight: 500,
+            overflowY: "scroll",
+            "&::-ms-overflow-style": { display: "none" },
+            "&::scrollbar-width": { display: "none" },
+            "&::-webkit-scrollbar": { display: "none" },
             background: "rgba(0,0,0,0.1)",
             borderRadius: 3,
             marginTop: 50,
@@ -480,43 +478,47 @@ const RecipeLayout = () => {
           >
             Saved Recipes
           </div>
-          {exampleRecipes.map((meal) => (
-            <div
-              onClick={() => {
-                fetchRecipeDetails(meal.id);
-                setOpenModal(true);
-              }}
-              css={{ cursor: "pointer" }}
-            >
-              <Card fluid style={{ marginBottom: 10 }}>
-                <Card.Content>
-                  <Card.Header>{meal.title}</Card.Header>
-                  <Image src={meal.image} size="small" />
-                  <Label color="red" tag>
-                    <Icon name="thumbs up" size="small" />
-                    {meal?.likes}
-                  </Label>
-                  <List>
-                    <List.Item>
-                      <div css={{ fontSize: 10, opacity: 0.4 }}>
-                        {`Saved on ${meal.savedOn}`}
-                      </div>
-                    </List.Item>
-                    <List.Item>
-                      <Icon name="gripfire" color="orange" />
-                      {`Calories: ${meal?.calories?.amount} ${meal?.calories?.unit}`}
-                    </List.Item>
-                    {meal?.vegetarian && (
+          {savedRecipe?.length ? (
+            savedRecipe.map((meal) => (
+              <div
+                onClick={() => {
+                  fetchRecipeDetails(meal.id);
+                  setOpenModal(true);
+                }}
+                css={{ cursor: "pointer" }}
+              >
+                <Card fluid style={{ marginBottom: 10 }}>
+                  <Card.Content>
+                    <Card.Header>{meal.title}</Card.Header>
+                    <Image src={meal.image} size="small" />
+                    <Label color="red" tag>
+                      <Icon name="thumbs up" size="small" />
+                      {meal?.likes}
+                    </Label>
+                    <List>
                       <List.Item>
-                        <Icon name="leaf" color="green" />
-                        Vegetarian
+                        <div css={{ fontSize: 10, opacity: 0.4 }}>
+                          {`Saved on ${meal.savedOn}`}
+                        </div>
                       </List.Item>
-                    )}
-                  </List>
-                </Card.Content>
-              </Card>
-            </div>
-          ))}
+                      <List.Item>
+                        <Icon name="gripfire" color="orange" />
+                        {`Calories: ${meal?.calories?.amount} ${meal?.calories?.unit}`}
+                      </List.Item>
+                      {meal?.vegetarian && (
+                        <List.Item>
+                          <Icon name="leaf" color="green" />
+                          Vegetarian
+                        </List.Item>
+                      )}
+                    </List>
+                  </Card.Content>
+                </Card>
+              </div>
+            ))
+          ) : (
+            <div css={{ fontSize: 12, color: "#6c6f76" }}>No saved recipes</div>
+          )}
         </div>
       </div>
       {recipes?.length > 0 && (
